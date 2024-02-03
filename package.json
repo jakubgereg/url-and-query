@@ -19,7 +19,14 @@
     "prepublishOnly": "npm run build",
     "test": "jest"
   },
-  "keywords": [],
+  "keywords": [
+    "url-and-query",
+    "url",
+    "qs",
+    "query params",
+    "query",
+    "parser"
+  ],
   "author": {
     "name": "Jakub Gereg"
   },
