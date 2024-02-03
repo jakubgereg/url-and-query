@@ -1,1 +1,1 @@
-export { qpUrl, qsUrl, updateQueryParams } from './url-and-query';
+export { defineUrlInstance } from './url-and-query';

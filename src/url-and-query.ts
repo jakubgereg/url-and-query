@@ -1,56 +1,67 @@
-import { isEmpty, isNil, isObject, isString, merge, values } from 'lodash';
-import queryString, { IParseOptions, IStringifyOptions } from 'qs';
+import { isString, merge } from 'lodash';
+import { extractQuery, isQueryEmpty, trimTrailingSlash } from './utils';
+import { QueryParamsObject, URLWithQueryParams } from './types';
 
-export type QueryParamsObject = { [key: string]: unknown };
-export interface URLWithQueryParams {
-  baseUrl: string;
-  queryParams: QueryParamsObject;
+export interface QueryStringLibrary {
+  parse: (url: string) => QueryParamsObject;
+  stringify: (query: QueryParamsObject) => string;
 }
-type QueryStringifyOptions = IStringifyOptions;
-type QueryParseOptions = IParseOptions;
 
-const DEFAULT_STRINGIFY_OPTIONS: QueryStringifyOptions = {
-  encode: false,
-  arrayFormat: 'brackets',
-  skipNulls: true
+interface BaseUrlOptions {
+  removeTrailingSlash?: boolean;
+}
+
+export interface QueryBaseOptions {
+  queryString: QueryStringLibrary;
+  baseUrlOptions?: BaseUrlOptions;
+}
+export interface QueryParserOptions extends Omit<QueryStringLibrary, 'stringify'>, BaseUrlOptions {}
+export interface QueryStringifyOptions extends Omit<QueryStringLibrary, 'parse'>, BaseUrlOptions {}
+
+export interface QueryUpdateOptions extends QueryParserOptions {
+  mergeQuery?: (oldQuery: QueryParamsObject, newQuery: QueryParamsObject) => QueryParamsObject;
+}
+
+export const urlStringify = (
+  url: string,
+  query: QueryParamsObject,
+  { stringify, removeTrailingSlash }: QueryStringifyOptions
+) => {
+  const { baseUrl } = extractQuery(url);
+  const _url = removeTrailingSlash ? trimTrailingSlash(baseUrl) : baseUrl;
+  return isQueryEmpty(query) ? _url : `${_url}?${stringify(query)}`;
 };
 
-const cleanupUrl = (url: string) => decodeURIComponent(url).replace(/\/$/, '');
-
-export const updateQueryParams = (path: string, params: QueryParamsObject): URLWithQueryParams => {
-  const { baseUrl, queryParams } = qpUrl(path);
+export const urlParse = (
+  url: string | Omit<URLWithQueryParams, 'queryParams'>,
+  { parse, removeTrailingSlash }: QueryParserOptions
+): URLWithQueryParams => {
+  const { baseUrl, queryString } = extractQuery(url);
+  const _url = removeTrailingSlash ? trimTrailingSlash(baseUrl) : baseUrl;
   return {
-    baseUrl,
-    queryParams: merge(queryParams, params)
+    baseUrl: _url,
+    queryParams: queryString ? parse(queryString) : {}
   };
 };
-export const extractQuery = (url: string) => {
-  const [baseUrl, query] = url.split('?');
-  return { baseUrl, query: query || undefined };
-};
-export const checkEmpty = (value: any) => (isObject(value) || isString(value) ? isEmpty(value) : isNil(value));
-export const isQueryEmpty = (query: QueryParamsObject) => values(query).every(checkEmpty);
-export const hasQueryParams = (url: string) => url.includes('?');
-export const addQuerySeparator = (url: string) => (hasQueryParams(url) ? '&' : '?');
 
-export const qs = (query: QueryParamsObject, options?: IStringifyOptions) =>
-  queryString.stringify(query, {
-    ...DEFAULT_STRINGIFY_OPTIONS,
-    ...options
-  });
+export const urlQueryUpdate = (
+  url: string | URLWithQueryParams,
+  query: QueryParamsObject,
+  { parse, removeTrailingSlash, mergeQuery = merge }: QueryUpdateOptions
+): URLWithQueryParams => {
+  const { baseUrl, queryParams } = isString(url) ? urlParse(url, { parse, removeTrailingSlash }) : url;
 
-export const qp = (value: string, options?: IParseOptions): QueryParamsObject =>
-  queryString.parse(decodeURIComponent(value), options);
-
-export const qsUrl = (url: string, query: QueryParamsObject, options?: QueryStringifyOptions) => {
-  const clearUrl = cleanupUrl(url);
-  return isQueryEmpty(query) ? clearUrl : `${clearUrl}${addQuerySeparator(clearUrl)}${qs(query, options)}`;
-};
-
-export const qpUrl = (url: string, options?: QueryParseOptions): URLWithQueryParams => {
-  const { baseUrl, query } = extractQuery(url);
   return {
-    baseUrl: cleanupUrl(baseUrl),
-    queryParams: query ? qp(query, options) : {}
+    baseUrl: removeTrailingSlash ? trimTrailingSlash(baseUrl) : baseUrl,
+    queryParams: mergeQuery(queryParams, query)
   };
 };
+
+export const defineUrlInstance = ({ queryString, baseUrlOptions }: QueryBaseOptions) => ({
+  parse: (url: string | Omit<URLWithQueryParams, 'queryParams'>, options?: Partial<QueryParserOptions>) =>
+    urlParse(url, { ...queryString, ...baseUrlOptions, ...options }),
+  stringify: (url: string, query: QueryParamsObject, options?: Partial<QueryStringifyOptions>) =>
+    urlStringify(url, query, { ...queryString, ...baseUrlOptions, ...options }),
+  update: (url: string | URLWithQueryParams, query: QueryParamsObject, options?: Partial<QueryUpdateOptions>) =>
+    urlQueryUpdate(url, query, { ...queryString, ...baseUrlOptions, ...options })
+});

@@ -10,34 +10,45 @@ Install the package using npm:
 npm install url-and-query
 ```
 
+Install your favourite query parser
+
+```bash
+npm install qs
+```
+
 ## Usage
 
 ```js
-import { qsUrl, qpUrl } from 'url-and-params';
+import { qs } from 'qs';
+import { defineUrlInstance } from 'url-and-query';
+
+const url = defineUrlInstance({
+  queryString: qs
+});
 ```
 
 # Examples
 
-## qsUrl
+## parse
 
 ```js
-const newURL = qsUrl('/example/path', { param1: 'value1', param2: 'value2' });
-console.log(newURL);
-// Output: '/example/path?param1=value1&param2=value2'
-```
-
-## qpUrl
-
-```js
-const { baseUrl, queryParams } = qpUrl('/example/path?param1=value1&param2=value2');
+const { baseUrl, queryParams } = url.parse('/example/path?param1=value1&param2=value2');
 console.log(baseUrl, queryParams);
 // Output: '/example/path', { param1: 'value1', param2: 'value2' }
 ```
 
-## updateQueryParams
+## stringify
 
 ```js
-const updatedURL = updateQueryParams('/example/path?param1=old', {
+const newURL = url.stringify('/example/path', { param1: 'value1', param2: 'value2' });
+console.log(newURL);
+// Output: '/example/path?param1=value1&param2=value2'
+```
+
+## update
+
+```js
+const updatedURL = url.update('/example/path?param1=old', {
   param1: 'new'
 });
 console.log(updatedURL);
