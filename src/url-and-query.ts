@@ -11,7 +11,7 @@ interface BaseUrlOptions {
   removeTrailingSlash?: boolean;
 }
 
-export interface QueryBaseOptions {
+export interface UrlInstanceOptions {
   queryString: QueryStringLibrary;
   baseUrlOptions?: BaseUrlOptions;
 }
@@ -22,7 +22,7 @@ export interface QueryUpdateOptions extends QueryParserOptions {
   mergeQuery?: (oldQuery: QueryParamsObject, newQuery: QueryParamsObject) => QueryParamsObject;
 }
 
-export const urlStringify = (
+const urlStringify = (
   url: string,
   query: QueryParamsObject,
   { stringify, removeTrailingSlash }: QueryStringifyOptions
@@ -32,7 +32,7 @@ export const urlStringify = (
   return isQueryEmpty(query) ? _url : `${_url}?${stringify(query)}`;
 };
 
-export const urlParse = (
+const urlParse = (
   url: string | Omit<URLWithQueryParams, 'queryParams'>,
   { parse, removeTrailingSlash }: QueryParserOptions
 ): URLWithQueryParams => {
@@ -44,7 +44,7 @@ export const urlParse = (
   };
 };
 
-export const urlQueryUpdate = (
+const urlQueryUpdate = (
   url: string | URLWithQueryParams,
   query: QueryParamsObject,
   { parse, removeTrailingSlash, mergeQuery = merge }: QueryUpdateOptions
@@ -57,11 +57,33 @@ export const urlQueryUpdate = (
   };
 };
 
-export const defineUrlInstance = ({ queryString, baseUrlOptions }: QueryBaseOptions) => ({
+/**
+ * Define a new instance of URL parser and query stringifier
+ * @param options - query string library and base url options
+ * @returns instance with parse, stringify and update methods
+ */
+export const defineUrlInstance = ({ queryString, baseUrlOptions }: UrlInstanceOptions) => ({
+  /**
+   * Parse the URL and return the base URL and query params
+   * @param url - URL string
+   * @param options - query parser options
+   */
   parse: (url: string | Omit<URLWithQueryParams, 'queryParams'>, options?: Partial<QueryParserOptions>) =>
     urlParse(url, { ...queryString, ...baseUrlOptions, ...options }),
+  /**
+   * Stringify the URL with the query param object
+   *
+   * **Note:** This method will `remove all` parameters from the URL and replace them with the query params defined in `query` argument
+   *
+   * @param url - URL string | URLWithQueryParams
+   * @param query - query params object
+   */
   stringify: (url: string, query: QueryParamsObject, options?: Partial<QueryStringifyOptions>) =>
     urlStringify(url, query, { ...queryString, ...baseUrlOptions, ...options }),
+  /**
+   * Update the query params of the URL
+   * @param url - URL string | URLWithQueryParams
+   */
   update: (url: string | URLWithQueryParams, query: QueryParamsObject, options?: Partial<QueryUpdateOptions>) =>
     urlQueryUpdate(url, query, { ...queryString, ...baseUrlOptions, ...options })
 });
