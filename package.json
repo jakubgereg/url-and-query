@@ -1,6 +1,6 @@
 {
   "name": "url-and-query",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Utility functions for handling query parameters in URLs",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
