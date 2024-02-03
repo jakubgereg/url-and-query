@@ -21,7 +21,7 @@ import { qsUrl, qpUrl } from 'url-and-params';
 ## qsUrl
 
 ```js
-const newURL = andParams('/example/path', { param1: 'value1', param2: 'value2' });
+const newURL = qsUrl('/example/path', { param1: 'value1', param2: 'value2' });
 console.log(newURL);
 // Output: '/example/path?param1=value1&param2=value2'
 ```
