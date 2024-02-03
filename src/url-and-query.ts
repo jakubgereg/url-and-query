@@ -7,7 +7,7 @@ export interface QueryStringLibrary {
   stringify: (query: QueryParamsObject) => string;
 }
 
-interface BaseUrlOptions {
+export interface BaseUrlOptions {
   removeTrailingSlash?: boolean;
 }
 

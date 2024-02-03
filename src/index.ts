@@ -1,10 +1,3 @@
-export {
-  defineUrlInstance,
-  UrlInstanceOptions,
-  QueryParserOptions,
-  QueryStringifyOptions,
-  QueryStringLibrary,
-  QueryUpdateOptions
-} from './url-and-query';
-
-export { QueryParamsObject, URLWithQueryParams } from './types';
+export * from './url-and-query';
+export { extractQuery } from './utils';
+export * from './types';
