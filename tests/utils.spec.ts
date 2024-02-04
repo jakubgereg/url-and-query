@@ -43,5 +43,13 @@ describe('utils', () => {
       baseUrl: 'www.some.com/something',
       queryString: undefined
     });
+    expect(extractQuery('www.some.com/', { trimBaseUrlTrailingSlash: true })).toEqual({
+      baseUrl: 'www.some.com',
+      queryString: undefined
+    });
+    expect(extractQuery('www.some.com/?test=1', { trimBaseUrlTrailingSlash: true })).toEqual({
+      baseUrl: 'www.some.com',
+      queryString: 'test=1'
+    });
   });
 });
