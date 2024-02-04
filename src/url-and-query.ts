@@ -12,7 +12,6 @@ export interface BaseUrlOptions {
 }
 
 export interface UrlInstanceOptions {
-  queryString: QueryStringLibrary;
   baseUrlOptions?: BaseUrlOptions;
 }
 export interface QueryParserOptions extends Omit<QueryStringLibrary, 'stringify'>, BaseUrlOptions {}
@@ -62,14 +61,14 @@ const urlQueryUpdate = (
  * @param options - query string library and base url options
  * @returns instance with parse, stringify and update methods
  */
-export const defineUrlInstance = ({ queryString, baseUrlOptions }: UrlInstanceOptions) => ({
+export const defineURL = (parser: QueryStringLibrary, instanceOptions?: UrlInstanceOptions) => ({
   /**
    * Parse the URL and return the base URL and query params
    * @param url - URL string
    * @param options - query parser options
    */
   parse: (url: string | Omit<URLWithQueryParams, 'queryParams'>, options?: Partial<QueryParserOptions>) =>
-    urlParse(url, { ...queryString, ...baseUrlOptions, ...options }),
+    urlParse(url, { ...parser, ...instanceOptions, ...options }),
   /**
    * Stringify the URL with the query param object
    *
@@ -79,11 +78,11 @@ export const defineUrlInstance = ({ queryString, baseUrlOptions }: UrlInstanceOp
    * @param query - query params object
    */
   stringify: (url: string, query: QueryParamsObject, options?: Partial<QueryStringifyOptions>) =>
-    urlStringify(url, query, { ...queryString, ...baseUrlOptions, ...options }),
+    urlStringify(url, query, { ...parser, ...instanceOptions, ...options }),
   /**
    * Update the query params of the URL
    * @param url - URL string | URLWithQueryParams
    */
   update: (url: string | URLWithQueryParams, query: QueryParamsObject, options?: Partial<QueryUpdateOptions>) =>
-    urlQueryUpdate(url, query, { ...queryString, ...baseUrlOptions, ...options })
+    urlQueryUpdate(url, query, { ...parser, ...instanceOptions, ...options })
 });

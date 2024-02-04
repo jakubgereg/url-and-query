@@ -2,6 +2,7 @@
   "name": "url-and-query",
   "version": "2.1.1",
   "description": "Utility functions for handling query parameters in URLs",
+  "repository": "jakubgereg/url-and-query",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
@@ -19,12 +20,22 @@
     "test": "jest"
   },
   "keywords": [
-    "url-and-query",
     "url",
     "qs",
-    "query params",
+    "querystring",
+    "queryparams",
+    "searchparams",
+    "queryupdate",
+    "urlupdate",
+    "urlextract",
     "query",
-    "parser"
+    "parser",
+    "encode",
+    "decode",
+    "param",
+    "string",
+    "extract",
+    "update"
   ],
   "author": {
     "name": "Jakub Gereg"
@@ -36,9 +47,10 @@
     "@types/qs": "^6.9.11",
     "jest": "^29.7.0",
     "prettier": "^3.2.4",
+    "qs": "^6.11.2",
+    "query-string": "^8.2.0",
     "ts-jest": "^29.1.2",
-    "typescript": "^5.3.3",
-    "qs": "^6.11.2"
+    "typescript": "^5.3.3"
   },
   "dependencies": {
     "lodash": "^4.17.21"

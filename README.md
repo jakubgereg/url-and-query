@@ -20,11 +20,9 @@ npm install qs
 
 ```js
 import { qs } from 'qs';
-import { defineUrlInstance } from 'url-and-query';
+import { defineURL } from 'url-and-query';
 
-const url = defineUrlInstance({
-  queryString: qs
-});
+const url = defineURL(qs);
 ```
 
 # Examples
