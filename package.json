@@ -17,8 +17,7 @@
     "preversion": "npm run check",
     "postversion": "git push && git push --tags && npm publish",
     "prepublishOnly": "npm run build",
-    "test": "jest",
-    "start": "ts-node src/t"
+    "test": "jest"
   },
   "keywords": [
     "url",
