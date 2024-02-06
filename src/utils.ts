@@ -1,10 +1,10 @@
 import { isObject, isString, isEmpty, isNil, values } from 'lodash';
-import { QueryParamsObject, URLWithQueryParams } from './types';
+import { QueryParamsObject, UrlWithQueryParams } from './types';
 
 export const trimTrailingSlash = (url: string) => url.replace(/\/$/, '');
 
 export const extractQuery = (
-  url: string | Omit<URLWithQueryParams, 'queryParams'>,
+  url: string | Pick<UrlWithQueryParams, 'baseUrl'>,
   { trimBaseUrlTrailingSlash }: Partial<{ trimBaseUrlTrailingSlash: boolean }> = {}
 ) => {
   const _url = isString(url) ? url : url.baseUrl;

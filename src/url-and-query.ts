@@ -1,120 +1,111 @@
 import { isString, merge } from 'lodash';
-import { QueryParamsObject, URLWithQueryParams } from './types';
+import { QueryParamsObject, UrlWithQueryParams } from './types';
 import { extractQuery, isQueryEmpty } from './utils';
 
 export interface QueryStringLibrary<StringifyArgs extends any, ParseArgs extends any> {
-  parse: (url: string, ...args: ParseArgs[]) => QueryParamsObject;
+  parse: (query: string, ...args: ParseArgs[]) => QueryParamsObject;
   stringify: (query: QueryParamsObject, ...args: StringifyArgs[]) => string;
 }
-export interface QueryParserOptions<ParseArgs extends any> {
-  parse: QueryStringLibrary<unknown, ParseArgs>['parse'];
-}
 
-export interface QueryStringifyOptions<StringifyArgs extends any> {
-  stringify: QueryStringLibrary<StringifyArgs, unknown>['stringify'];
-}
-
-export interface QueryUpdateOptions<ParseArgs extends any> extends QueryParserOptions<ParseArgs> {
+interface QueryUpdateOptions {
   queryMerger?: (oldQuery: QueryParamsObject, newQuery: QueryParamsObject) => QueryParamsObject;
 }
 
-const urlStringify = <StringifyArgs extends any>(
-  url: string,
-  query: QueryParamsObject,
-  { stringify }: QueryStringifyOptions<StringifyArgs>
-) => {
-  const { baseUrl } = extractQuery(url);
-  const queryString = stringify(query);
-  return isQueryEmpty(query) ? baseUrl : `${baseUrl}${queryString.startsWith('?') ? queryString : `?${queryString}`}`;
-};
-
-const urlParse = <ParseArgs extends any>(
-  url: string | Omit<URLWithQueryParams, 'queryParams'>,
-  { parse }: QueryParserOptions<ParseArgs>
-): URLWithQueryParams => {
-  const { baseUrl, queryString } = extractQuery(url);
-  return {
-    baseUrl: baseUrl,
-    queryParams: queryString ? parse(queryString) : {}
+export const urlStringify =
+  <StringifyArgs extends any>(stringify: QueryStringLibrary<StringifyArgs, unknown>['stringify']) =>
+  (url: string, query: QueryParamsObject) => {
+    const { baseUrl } = extractQuery(url);
+    const queryString = isQueryEmpty(query) ? undefined : stringify(query);
+    return queryString ? `${baseUrl}${queryString.startsWith('?') ? queryString : `?${queryString}`}` : baseUrl;
   };
-};
 
-const urlQueryUpdate = <ParseArgs extends any>(
-  url: string | URLWithQueryParams,
-  query: QueryParamsObject,
-  { parse, queryMerger = merge }: QueryUpdateOptions<ParseArgs>
-): URLWithQueryParams => {
-  const { baseUrl, queryParams } = isString(url) ? urlParse(url, { parse }) : url;
-
-  return {
-    baseUrl: baseUrl,
-    queryParams: queryMerger(queryParams, query)
+export const urlParse =
+  <ParseArgs extends any>(parse: QueryStringLibrary<unknown, ParseArgs>['parse']) =>
+  (url: string): UrlWithQueryParams => {
+    const { baseUrl, queryString } = extractQuery(url);
+    return {
+      baseUrl,
+      queryParams: queryString ? parse(queryString) : {}
+    };
   };
-};
+
+export const urlUpdate =
+  <ParseArgs extends any>(parse: QueryStringLibrary<unknown, ParseArgs>['parse']) =>
+  (
+    url: string | UrlWithQueryParams,
+    query: QueryParamsObject,
+    { queryMerger = merge }: QueryUpdateOptions
+  ): UrlWithQueryParams => {
+    const { baseUrl, queryParams } = isString(url) ? urlParse(parse)(url) : url;
+    return {
+      baseUrl: baseUrl,
+      queryParams: queryMerger(queryParams, query)
+    };
+  };
+
+export interface UrlStringifyOptions<StringifyArgs extends any> {
+  stringifyOptions: StringifyArgs[];
+}
+
+export interface UrlParseOptions<ParseArgs extends any> {
+  parseOptions: ParseArgs[];
+}
+
+export interface UrlUpdateOptions<ParseArgs extends any> {
+  parseOptions: ParseArgs[];
+  queryMerger?: (oldQuery: QueryParamsObject, newQuery: QueryParamsObject) => QueryParamsObject;
+}
+
+export interface UrlDefineOptions<StringifyArgs extends any, ParseArgs extends any> {
+  stringifyOptions: UrlStringifyOptions<StringifyArgs>;
+  parseOptions: UrlParseOptions<ParseArgs>;
+}
 
 /**
- * Define a new instance of URL parser and query stringifier
+ * Define a new instance of Url parser and query stringifier
  * @param options - query string library and base url options
  * @returns instance with parse, stringify and update methods
  */
-export const defineURL = <StringifyArgs extends any, ParseArgs extends any>(
+export const defineUrl = <StringifyArgs extends any, ParseArgs extends any>(
   parser: QueryStringLibrary<StringifyArgs, ParseArgs>,
-  options?: Partial<{
-    stringifyOptions: StringifyArgs[];
-    parseOptions: ParseArgs[];
-  }>
+  options: Partial<UrlDefineOptions<StringifyArgs, ParseArgs>> = {}
 ) => ({
   /**
-   * Parse the URL and return the base URL and query params
-   * @param url - URL string
+   * Parse the Url and return the base Url and query params
+   * @param url - Url string
    * @param options - query parser options
    */
-  parse: (
-    url: string | Omit<URLWithQueryParams, 'queryParams'>,
-    {
-      parserOptions
-    }: Partial<{
-      parserOptions: ParseArgs[];
-    }> = {}
-  ) => {
-    const defaultOptions = options || {};
-    const parseArgs = merge([], defaultOptions.parseOptions, parserOptions);
-    return urlParse(url, {
-      parse: (url) => parser.parse(url, ...parseArgs)
-    });
+  parse: (url: string, { parseOptions }: Partial<UrlParseOptions<ParseArgs>> = {}) => {
+    const parseArgs = merge([], options.parseOptions, parseOptions);
+    return urlParse((param) => parser.parse(param, ...parseArgs))(url);
   },
   /**
-   * Stringify the URL with the query param object
+   * Stringify the Url with the query param object
    *
-   * **Note:** This method will `remove all` parameters from the URL and replace them with the query params defined in `query` argument
+   * **Note:** This method will `remove all` parameters from the Url and replace them with the query params defined in `query` argument
    *
-   * @param url - URL string | URLWithQueryParams
+   * @param url - Url string | UrlWithQueryParams
    * @param query - query params object
    */
-  stringify: (url: string, query: QueryParamsObject, ...args: StringifyArgs[]) => {
-    const { stringifyOptions = [] } = options || {};
-    const stringifyArgs = merge([], stringifyOptions, args);
-    return urlStringify(url, query, { stringify: (query) => parser.stringify(query, ...stringifyArgs) });
+  stringify: (
+    url: string,
+    query: QueryParamsObject,
+    { stringifyOptions }: Partial<UrlStringifyOptions<StringifyArgs>> = {}
+  ) => {
+    const stringifyArgs = merge([], options.stringifyOptions, stringifyOptions);
+    return urlStringify((param) => parser.stringify(param, ...stringifyArgs))(url, query);
   },
   /**
-   * Update the query params of the URL
-   * @param url - URL string | URLWithQueryParams
+   * Update the query params of the Url
+   * @param url - Url string | UrlWithQueryParams
    */
   update: (
-    url: string | URLWithQueryParams,
+    url: string | UrlWithQueryParams,
     query: QueryParamsObject,
-    {
-      parserOptions,
-      queryMerger = merge
-    }: Partial<{
-      parserOptions: ParseArgs[];
-      queryMerger: QueryUpdateOptions<ParseArgs>['queryMerger'];
-    }> = {}
+    { parseOptions, queryMerger = merge }: Partial<UrlUpdateOptions<ParseArgs>> = {}
   ) => {
-    const { parseOptions = [] } = options || {};
-    const parseArgs = merge([], parseOptions, parserOptions);
-    return urlQueryUpdate(url, query, {
-      parse: (url) => parser.parse(url, ...parseArgs),
+    const parseArgs = merge([], options.parseOptions, parseOptions);
+    return urlUpdate((param) => parser.parse(param, ...parseArgs))(url, query, {
       queryMerger
     });
   }

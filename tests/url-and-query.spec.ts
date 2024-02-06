@@ -1,12 +1,12 @@
 import { mapValues, merge, toString } from 'lodash';
-import { defineURL } from '../src/url-and-query';
+import { defineUrl } from '../src/url-and-query';
 
 import qs from 'qs';
 
 const literals = { number: 1, text: 'string', boolean: true };
 const literalsString = mapValues(literals, toString);
 
-const { parse, stringify, update } = defineURL(qs);
+const { parse, stringify, update } = defineUrl(qs);
 
 describe('stringify', () => {
   it('should construct url with query params', () => {
@@ -26,22 +26,17 @@ describe('stringify', () => {
     expect(result).toEqual('www.mypage.com/');
   });
   it('should ignore empty or null params', () => {
-    const result = stringify('test.com', { page: null, color: 'red' }, { skipNulls: true });
+    const result = stringify('test.com', { page: null, color: 'red' }, { stringifyOptions: [{ skipNulls: true }] });
     expect(result).toEqual('test.com?color=red');
   });
   it('should handle arrays with bracket styles and encoded', () => {
     const result = stringify(
       'test.com',
       { tests: [1, 2, 3], colors: ['red', 'blue'] },
-      { arrayFormat: 'brackets', encode: false }
+      { stringifyOptions: [{ arrayFormat: 'brackets', encode: false }] }
     );
     expect(result).toEqual('test.com?tests[]=1&tests[]=2&tests[]=3&colors[]=red&colors[]=blue');
   });
-  //TODO: support for trailing slash
-  // it('should handle trailing slash', () => {
-  //   const result = stringify('test.com/', { page: 1 });
-  //   expect(result).toEqual('test.com?page=1');
-  // });
 });
 
 describe('parse', () => {
@@ -66,7 +61,7 @@ describe('parse', () => {
     expect(result.queryParams).toEqual(literalsString);
   });
   it("should parse url with dot notation '?'", () => {
-    const result = parse('test.com?&number.min=11&number.max=3451', { parserOptions: [{ allowDots: true }] });
+    const result = parse('test.com?&number.min=11&number.max=3451', { parseOptions: [{ allowDots: true }] });
     expect(result.baseUrl).toEqual('test.com');
     expect(result.queryParams).toEqual({
       number: { min: '11', max: '3451' }
@@ -77,12 +72,6 @@ describe('parse', () => {
     expect(result.baseUrl).toEqual('test.com');
     expect(result.queryParams).toEqual(literalsString);
   });
-  //TODO: support for trailing slash
-  // it('should handle parsing with trailing slash', () => {
-  //   const result = parse('test.com/?what=true');
-  //   expect(result.baseUrl).toEqual('test.com');
-  //   expect(result.queryParams).toEqual({ what: 'true' });
-  // });
 });
 
 describe('update', () => {

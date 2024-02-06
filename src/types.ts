@@ -1,6 +1,6 @@
 export type QueryParamsObject = { [key: string]: any };
 
-export interface URLWithQueryParams {
+export interface UrlWithQueryParams {
   baseUrl: string;
   queryParams: QueryParamsObject;
 }

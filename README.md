@@ -1,6 +1,6 @@
 # Url and Query
 
-This package provides utility functions for handling query parameters in URLs. It is particularly useful for updating, extracting, and manipulating query parameters in a URL.
+This package provides utility functions for handling query parameters in Urls. It is particularly useful for updating, extracting, and manipulating query parameters in a Url.
 
 ## Installation
 
@@ -20,9 +20,9 @@ npm install qs
 
 ```js
 import qs from 'qs';
-import { defineURL } from 'url-and-query';
+import { defineUrl } from 'url-and-query';
 
-const url = defineURL(qs);
+const url = defineUrl(qs);
 ```
 
 ## Examples
@@ -38,28 +38,28 @@ console.log(baseUrl, queryParams);
 ### stringify
 
 ```js
-const newURL = url.stringify('/example/path', { param1: 'value1', param2: 'value2' });
-console.log(newURL);
+const newUrl = url.stringify('/example/path', { param1: 'value1', param2: 'value2' });
+console.log(newUrl);
 // Output: '/example/path?param1=value1&param2=value2'
 ```
 
 ### update
 
 ```js
-const updatedURL = url.update('/example/path?param1=old', {
+const updatedUrl = url.update('/example/path?param1=old', {
   param1: 'new'
 });
-console.log(updatedURL);
+console.log(updatedUrl);
 // Output: { baseUrl: '/example/path', queryParams: { param1: 'new' } }
 ```
 
 ## Customization
 
-The **queryString** library that you choose empowers you with the flexibility to customize the _parsing_ and _stringifying_ of URLs to suit your specific needs. By inheriting the options of the chosen parser, this library allows you to conveniently set it once using `defineURL` and apply it consistently whenever you _parse_ or _stringify_ your URLs.
+The **queryString** library that you choose empowers you with the flexibility to customize the _parsing_ and _stringifying_ of Urls to suit your specific needs. By inheriting the options of the chosen parser, this library allows you to conveniently set it once using `defineUrl` and apply it consistently whenever you _parse_ or _stringify_ your Urls.
 
-### defineURL(_parser_, _options_)
+### defineUrl(_parser_, _options_)
 
-Easily construct URLs with customizable options for the `stringify()` and `parse()` methods using `defineURL()` factory.
+Easily construct Urls with customizable options for the `stringify()` and `parse()` methods using `defineUrl()` factory.
 
 ### Parameters
 
@@ -71,7 +71,7 @@ Easily construct URLs with customizable options for the `stringify()` and `parse
 ### Example
 
 ```js
-const url = defineURL(qs, {
+const url = defineUrl(qs, {
   stringifyOptions: [{ skipNulls: true }],
   parseOptions: [{ allowDots: true }]
 });
@@ -97,7 +97,7 @@ You have the flexibility to override the default settings for your parser or str
 
 ### Example
 
-Consider example `defineURL` from above with `parseOptions: [{ allowDots: true }]`.
+Consider example `defineUrl` from above with `parseOptions: [{ allowDots: true }]`.
 
 You are able to override `parseOptions` on the spot by supplying additional parameter to `parse` method
 
