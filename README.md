@@ -10,7 +10,7 @@ Install the package using npm:
 npm install url-and-query
 ```
 
-Install your favourite query parser
+Install your favorite query parser:
 
 ```bash
 npm install qs
@@ -19,7 +19,7 @@ npm install qs
 ## Usage
 
 ```js
-import { qs } from 'qs';
+import qs from 'qs';
 import { defineURL } from 'url-and-query';
 
 const url = defineURL(qs);
@@ -55,11 +55,11 @@ console.log(updatedURL);
 
 ## Customization
 
-The **queryString** library that you choose empowers you with the flexibility to customize the _parsing_ and _stringifying_ of URLs to suit your specific needs. By inheriting the options of the chosen parser, this library allows you to conveniently set it once using `defineUrl`` and apply it consistently whenever you _parse_ or _stringify_ your URLs.
+The **queryString** library that you choose empowers you with the flexibility to customize the _parsing_ and _stringifying_ of URLs to suit your specific needs. By inheriting the options of the chosen parser, this library allows you to conveniently set it once using `defineURL` and apply it consistently whenever you _parse_ or _stringify_ your URLs.
 
-### defineUrl(parser, options)
+### defineURL(_parser_, _options_)
 
-Easily construct URLs with customizable options for the `stringify()` and `parse()` methods using `defineUrl()` factory.
+Easily construct URLs with customizable options for the `stringify()` and `parse()` methods using `defineURL()` factory.
 
 ### Parameters
 
@@ -71,20 +71,20 @@ Easily construct URLs with customizable options for the `stringify()` and `parse
 ### Example
 
 ```js
-const url = defineURL(parser, {
+const url = defineURL(qs, {
   stringifyOptions: [{ skipNulls: true }],
   parseOptions: [{ allowDots: true }]
 });
 ```
 
-Parse url with option `[{ allowDots: true }]`
+Parse url with option **{ allowDots: true }**
 
 ```js
 url.parse('myUrl.com?color.is=red&test=passed');
 //Output: 'myUrl.com', { 'color.is': 'red', test: 'passed' }
 ```
 
-Stringify url with option `[{ skipNulls: true }]`
+Stringify url with option **{ skipNulls: true }**
 
 ```js
 url.stringify('myUrl.com', { a: 1, b: null });
@@ -97,9 +97,14 @@ You have the flexibility to override the default settings for your parser or str
 
 ### Example
 
-Parse url but dont allow dots `[{ allowDots: false }]`
+Consider example `defineURL` from above with `parseOptions: [{ allowDots: true }]`.
+
+You are able to override `parseOptions` on the spot by supplying additional parameter to `parse` method
 
 ```js
-url.parse('myUrl.com?color.is=red&test=passed', { parserOptions: [{ allowDots: false }] });
+// Overriding parseOptions on the spot to disallow dots
+url.parse('myUrl.com?color.is=red&test=passed', {
+  parseOptions: [{ allowDots: false }]
+});
 //Output: 'myUrl.com', { 'color.is': 'red', test: 'passed' }
 ```
