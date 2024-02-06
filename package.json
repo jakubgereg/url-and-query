@@ -1,6 +1,6 @@
 {
   "name": "url-and-query",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Utility functions for handling query parameters in Urls",
   "repository": "jakubgereg/url-and-query",
   "main": "dist/index.js",
