@@ -43,22 +43,21 @@ export const urlUpdate =
     };
   };
 
-export interface UrlStringifyOptions<StringifyArgs extends any> {
+export interface UrlDefineOptions<StringifyArgs extends any, ParseArgs extends any> {
   stringifyOptions: StringifyArgs[];
+  parseOptions: ParseArgs[];
+}
+
+export interface UrlStringifyOptions<StringifyArgs extends any> {
+  stringifyOptions: UrlDefineOptions<StringifyArgs, unknown>['stringifyOptions'];
 }
 
 export interface UrlParseOptions<ParseArgs extends any> {
-  parseOptions: ParseArgs[];
+  parseOptions: UrlDefineOptions<ParseArgs, unknown>['parseOptions'];
 }
 
-export interface UrlUpdateOptions<ParseArgs extends any> {
-  parseOptions: ParseArgs[];
+export interface UrlUpdateOptions<ParseArgs extends any> extends UrlParseOptions<ParseArgs> {
   queryMerger?: (oldQuery: QueryParamsObject, newQuery: QueryParamsObject) => QueryParamsObject;
-}
-
-export interface UrlDefineOptions<StringifyArgs extends any, ParseArgs extends any> {
-  stringifyOptions: UrlStringifyOptions<StringifyArgs>;
-  parseOptions: UrlParseOptions<ParseArgs>;
 }
 
 /**

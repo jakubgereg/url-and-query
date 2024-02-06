@@ -6,7 +6,7 @@ import qs from 'qs';
 const literals = { number: 1, text: 'string', boolean: true };
 const literalsString = mapValues(literals, toString);
 
-const { parse, stringify, update } = defineUrl(qs);
+const { parse, stringify, update } = defineUrl(qs, { stringifyOptions: [{ skipNulls: true }] });
 
 describe('stringify', () => {
   it('should construct url with query params', () => {
@@ -26,8 +26,12 @@ describe('stringify', () => {
     expect(result).toEqual('www.mypage.com/');
   });
   it('should ignore empty or null params', () => {
-    const result = stringify('test.com', { page: null, color: 'red' }, { stringifyOptions: [{ skipNulls: true }] });
+    const result = stringify('test.com', { page: null, color: 'red' });
     expect(result).toEqual('test.com?color=red');
+  });
+  it('should not ignore empty or null params', () => {
+    const result = stringify('test.com', { page: null, color: 'red' }, { stringifyOptions: [{ skipNulls: false }] });
+    expect(result).toEqual('test.com?page=&color=red');
   });
   it('should handle arrays with bracket styles and encoded', () => {
     const result = stringify(
